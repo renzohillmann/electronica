@@ -1,0 +1,31 @@
+# Ignore Python cache files
+__pycache__/
+*.pyc
+
+# Ignore Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Ignore Excel files
+*.xlsx
+
+# Ignore PNG images
+*.png
+
+# Ignore KiCad generated files
+*.net
+*.sch
+*.kicad_pcb
+*.kicad_sym
+*.kicad_mod
+
+# Ignore environment variables or configuration files
+.env
+*.env
+
+# Ignore temporary files
+*.tmp
+*.log
+*.bak
+
+# Ignore VS Code settings
+.vscode/
