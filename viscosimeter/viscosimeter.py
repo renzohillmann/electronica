@@ -36,7 +36,7 @@ def create_viscosimeter_circuit():
     r2 = Part("Device", "R", value="31.4k", footprint="Resistor_SMD:R_0805_2012Metric")
     
     # Current sensor - using a custom symbol since ACS712 might not be in default lib
-    acs712 = Part("Sensor_Current", "ACS712xLLCTR-30A", 
+    acs712 = Part("Sensor_Current", "ACS712xLCTR-30A", 
                  footprint="Package_SO:SOIC-8_3.9x4.9mm_P1.27mm")
     
     # Motor - use a generic motor symbol
@@ -44,8 +44,8 @@ def create_viscosimeter_circuit():
                 value="RS-445PA-14233R",
                 footprint="TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-1,5-2_1x02_P5.00mm_Horizontal")
     
-    # Proximity sensor - using a generic sensor
-    prox_sensor = Part("Sensor", "Generic_Sensor", 
+    # Proximity sensor TCD210245AA - using a simple reflective optical sensor
+    prox_sensor = Part("Sensor_Proximity", "QRE1113", 
                       value="TCD210245AA",
                       footprint="Package_TO_SOT_THT:TO-92_Inline")
     

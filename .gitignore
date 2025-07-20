@@ -21,6 +21,7 @@ __pycache__/
 # Ignore environment variables or configuration files
 .env
 *.env
+.venv  
 
 # Ignore temporary files
 *.tmp
@@ -29,3 +30,6 @@ __pycache__/
 
 # Ignore VS Code settings
 .vscode/
+
+# lib_pickle_dir - ignore directory containing lib_pickle files
+lib_pickle_dir/
