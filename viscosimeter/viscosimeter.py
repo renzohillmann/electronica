@@ -62,14 +62,14 @@ def create_viscosimeter_circuit():
                  footprint="TerminalBlock:TerminalBlock_bornier-2_P5.08mm")
     
     # Create labels for power rails
-    vcc12_label = Part("power", "PWR_FLAG")
-    gnd_label = Part("power", "GND")
-    vcc5_label = Part("power", "PWR_FLAG")
+    # vcc12_label = Part("power", "PWR_FLAG")
+    # gnd_label = Part("power", "GND")
+    # vcc5_label = Part("power", "PWR_FLAG")
     
     # Connect power labels
-    vcc12_label[1] += vcc12
-    gnd_label[1] += gnd
-    vcc5_label[1] += vcc5
+    # vcc12_label[1] += vcc12
+    # gnd_label[1] += gnd
+    # vcc5_label[1] += vcc5
     
     # Connect 12V supply terminals
     pwr12v[1] += vcc12
@@ -118,7 +118,7 @@ def create_viscosimeter_circuit():
     
     # Generate netlist
     netlist_file = "viscosimeter.net"
-    generate_netlist(file=netlist_file)
+    generate_netlist()
     print(f"Netlist generated successfully: {netlist_file}")
     
     # Generate a simple schematic text description
