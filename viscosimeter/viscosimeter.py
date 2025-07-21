@@ -35,7 +35,7 @@ def create_viscosimeter_circuit():
     r1 = Part("Device", "R", value="48.7k", footprint="Resistor_SMD:R_0805_2012Metric")
     r2 = Part("Device", "R", value="31.4k", footprint="Resistor_SMD:R_0805_2012Metric")
     
-    # Current sensor - using a custom symbol since ACS712 might not be in default lib
+    # Current sensor - using correct ACS712 part name
     acs712 = Part("Sensor_Current", "ACS712xLCTR-30A", 
                  footprint="Package_SO:SOIC-8_3.9x4.9mm_P1.27mm")
     
@@ -44,10 +44,10 @@ def create_viscosimeter_circuit():
                 value="RS-445PA-14233R",
                 footprint="TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-1,5-2_1x02_P5.00mm_Horizontal")
     
-    # Proximity sensor TCD210245AA - using a simple reflective optical sensor
-    prox_sensor = Part("Sensor_Proximity", "QRE1113", 
+    # Proximity sensor TCD210245AA - using screw terminal (more compatible)
+    prox_sensor = Part("Connector", "Screw_Terminal_01x03", 
                       value="TCD210245AA",
-                      footprint="Package_TO_SOT_THT:TO-92_Inline")
+                      footprint="TerminalBlock:TerminalBlock_bornier-3_P5.08mm")
     
     # Switch - using a push button
     switch = Part("Switch", "SW_Push", 
@@ -92,10 +92,10 @@ def create_viscosimeter_circuit():
     motor["+"] += motor_pos
     motor["-"] += gnd
     
-    # Connect proximity sensor (3-pin device: VCC, GND, OUT)
-    prox_sensor["VCC"] += vcc5
-    prox_sensor["GND"] += gnd
-    prox_sensor["OUT"] += proximity_out
+    # Connect proximity sensor (3-pin connector: pin 1=VCC, pin 2=GND, pin 3=OUT)
+    prox_sensor[1] += vcc5
+    prox_sensor[2] += gnd
+    prox_sensor[3] += proximity_out
     
     # Connect switch
     switch[1] += switch_out
@@ -139,13 +139,20 @@ def create_viscosimeter_circuit():
     print(f"  Current Sensor IP- -> Motor (+)")
     print(f"  Motor (-) -> GND")
     
+    print("\nComponent Details:")
+    print(f"  Current Sensor: ACS712xLCTR-30A (±30A, 66mV/A)")
+    print(f"  Motor: RS-445PA-14233R")
+    print(f"  Proximity Sensor: TCD210245AA (3-pin: VCC, GND, OUT)")
+    print(f"  Voltage Divider: 48.7kΩ / 31.4kΩ (for 12V monitoring)")
+    
     return netlist_file
 
-# Call the function to create the circuit
-netlist_file = create_viscosimeter_circuit()
-print(f"\nTo create a visual schematic in KiCad:")
-print(f"1. Open KiCad and create a new project")
-print(f"2. Open the Schematic Editor")
-print(f"3. Go to File -> Import -> Netlist")
-print(f"4. Select the generated file: {netlist_file}")
-print(f"5. KiCad will place components that you can arrange according to the diagram")
+if __name__ == "__main__":
+    # Call the function to create the circuit
+    netlist_file = create_viscosimeter_circuit()
+    print(f"\nTo create a visual schematic in KiCad:")
+    print(f"1. Open KiCad and create a new project")
+    print(f"2. Open the Schematic Editor")
+    print(f"3. Go to File -> Import -> Netlist")
+    print(f"4. Select the generated file: {netlist_file}")
+    print(f"5. KiCad will place components that you can arrange according to the diagram")
