@@ -1,5 +1,5 @@
 """
-Main viscosimeter circuit script that creates a netlist for the viscosimeter schematic.
+Main viscosimeter circuit script that creates a KiCad schematic file for the viscosimeter.
 """
 # First, import the initialization script
 import kicad_init
@@ -7,12 +7,487 @@ import kicad_init
 # Now import SKiDL and other modules
 from skidl import *
 import os
+import json
+import uuid
+from datetime import datetime
 
 # Set up SKiDL to use KiCad libraries
 set_default_tool(KICAD)
 
+def generate_kicad_schematic():
+    """Generate a KiCad schematic file (.kicad_sch) with complete symbol definitions"""
+    
+    # Component positions
+    component_positions = {
+        "arduino": {"x": 127, "y": 76.2},
+        "acs712": {"x": 76.2, "y": 50.8},
+        "motor": {"x": 177.8, "y": 50.8},
+        "prox_sensor": {"x": 76.2, "y": 101.6},
+        "switch": {"x": 177.8, "y": 101.6},
+        "pwr12v": {"x": 25.4, "y": 25.4},
+        "r1": {"x": 50.8, "y": 25.4},
+        "r2": {"x": 50.8, "y": 38.1}
+    }
+    
+    # Generate KiCad S-expression format with complete symbol definitions
+    schematic_content = f'''(kicad_sch (version 20230121) (generator eeschema)
+
+  (uuid {str(uuid.uuid4())})
+
+  (paper "A4")
+
+  (lib_symbols
+    (symbol "Device:R" (pin_numbers hide) (pin_names (offset 0)) (in_bom yes) (on_board yes)
+      (property "Reference" "R" (at 2.032 0 90)
+        (effects (font (size 1.27 1.27)))
+      )
+      (property "Value" "R" (at 0 0 90)
+        (effects (font (size 1.27 1.27)))
+      )
+      (property "Footprint" "" (at -1.778 0 90)
+        (effects (font (size 1.27 1.27)) hide)
+      )
+      (symbol "R_0_1"
+        (rectangle (start -1.016 -2.54) (end 1.016 2.54)
+          (stroke (width 0.254) (type default))
+          (fill (type none))
+        )
+      )
+      (symbol "R_1_1"
+        (pin passive line (at 0 3.81 270) (length 1.27)
+          (name "~" (effects (font (size 1.27 1.27))))
+          (number "1" (effects (font (size 1.27 1.27))))
+        )
+        (pin passive line (at 0 -3.81 90) (length 1.27)
+          (name "~" (effects (font (size 1.27 1.27))))
+          (number "2" (effects (font (size 1.27 1.27))))
+        )
+      )
+    )
+    (symbol "Connector:Screw_Terminal_01x02" (pin_names (offset 1.016) hide) (in_bom yes) (on_board yes)
+      (property "Reference" "J" (at 0 2.54 0)
+        (effects (font (size 1.27 1.27)))
+      )
+      (property "Value" "Screw_Terminal_01x02" (at 0 -5.08 0)
+        (effects (font (size 1.27 1.27)))
+      )
+      (symbol "Screw_Terminal_01x02_1_1"
+        (rectangle (start -1.27 1.27) (end 1.27 -3.81)
+          (stroke (width 0.254) (type default))
+          (fill (type none))
+        )
+        (circle (center 0 0) (radius 0.635)
+          (stroke (width 0.1524) (type default))
+          (fill (type none))
+        )
+        (circle (center 0 -2.54) (radius 0.635)
+          (stroke (width 0.1524) (type default))
+          (fill (type none))
+        )
+        (pin passive line (at -5.08 0 0) (length 3.81)
+          (name "Pin_1" (effects (font (size 1.27 1.27))))
+          (number "1" (effects (font (size 1.27 1.27))))
+        )
+        (pin passive line (at -5.08 -2.54 0) (length 3.81)
+          (name "Pin_2" (effects (font (size 1.27 1.27))))
+          (number "2" (effects (font (size 1.27 1.27))))
+        )
+      )
+    )
+    (symbol "Connector:Screw_Terminal_01x03" (pin_names (offset 1.016) hide) (in_bom yes) (on_board yes)
+      (property "Reference" "J" (at 0 3.81 0)
+        (effects (font (size 1.27 1.27)))
+      )
+      (property "Value" "Screw_Terminal_01x03" (at 0 -6.35 0)
+        (effects (font (size 1.27 1.27)))
+      )
+      (symbol "Screw_Terminal_01x03_1_1"
+        (rectangle (start -1.27 2.54) (end 1.27 -5.08)
+          (stroke (width 0.254) (type default))
+          (fill (type none))
+        )
+        (circle (center 0 1.27) (radius 0.635)
+          (stroke (width 0.1524) (type default))
+          (fill (type none))
+        )
+        (circle (center 0 -1.27) (radius 0.635)
+          (stroke (width 0.1524) (type default))
+          (fill (type none))
+        )
+        (circle (center 0 -3.81) (radius 0.635)
+          (stroke (width 0.1524) (type default))
+          (fill (type none))
+        )
+        (pin passive line (at -5.08 1.27 0) (length 3.81)
+          (name "Pin_1" (effects (font (size 1.27 1.27))))
+          (number "1" (effects (font (size 1.27 1.27))))
+        )
+        (pin passive line (at -5.08 -1.27 0) (length 3.81)
+          (name "Pin_2" (effects (font (size 1.27 1.27))))
+          (number "2" (effects (font (size 1.27 1.27))))
+        )
+        (pin passive line (at -5.08 -3.81 0) (length 3.81)
+          (name "Pin_3" (effects (font (size 1.27 1.27))))
+          (number "3" (effects (font (size 1.27 1.27))))
+        )
+      )
+    )
+    (symbol "Switch:SW_Push" (pin_numbers hide) (pin_names (offset 1.016) hide) (in_bom yes) (on_board yes)
+      (property "Reference" "SW" (at 1.27 2.54 0)
+        (effects (font (size 1.27 1.27)) (justify left))
+      )
+      (property "Value" "SW_Push" (at 0 -1.524 0)
+        (effects (font (size 1.27 1.27)))
+      )
+      (symbol "SW_Push_0_1"
+        (circle (center -2.032 0) (radius 0.508)
+          (stroke (width 0) (type default))
+          (fill (type none))
+        )
+        (polyline
+          (pts
+            (xy 0 1.27)
+            (xy 0 3.048)
+          )
+          (stroke (width 0) (type default))
+          (fill (type none))
+        )
+        (polyline
+          (pts
+            (xy 2.54 1.27)
+            (xy -2.54 1.27)
+          )
+          (stroke (width 0) (type default))
+          (fill (type none))
+        )
+        (circle (center 2.032 0) (radius 0.508)
+          (stroke (width 0) (type default))
+          (fill (type none))
+        )
+        (pin passive line (at -5.08 0 0) (length 2.54)
+          (name "1" (effects (font (size 1.27 1.27))))
+          (number "1" (effects (font (size 1.27 1.27))))
+        )
+        (pin passive line (at 5.08 0 180) (length 2.54)
+          (name "2" (effects (font (size 1.27 1.27))))
+          (number "2" (effects (font (size 1.27 1.27))))
+        )
+      )
+    )
+    (symbol "MCU_Module:Arduino_UNO_R3" (in_bom yes) (on_board yes)
+      (property "Reference" "A" (at -10.16 23.495 0)
+        (effects (font (size 1.27 1.27)) (justify left bottom))
+      )
+      (property "Value" "Arduino_UNO_R3" (at 5.08 -26.67 0)
+        (effects (font (size 1.27 1.27)) (justify left top))
+      )
+      (symbol "Arduino_UNO_R3_0_1"
+        (rectangle (start -15.24 22.86) (end 15.24 -25.4)
+          (stroke (width 0.254) (type default))
+          (fill (type background))
+        )
+      )
+      (symbol "Arduino_UNO_R3_1_1"
+        (pin bidirectional line (at -17.78 15.24 0) (length 2.54)
+          (name "A0" (effects (font (size 1.27 1.27))))
+          (number "1" (effects (font (size 1.27 1.27))))
+        )
+        (pin bidirectional line (at -17.78 12.7 0) (length 2.54)
+          (name "A1" (effects (font (size 1.27 1.27))))
+          (number "2" (effects (font (size 1.27 1.27))))
+        )
+        (pin bidirectional line (at 17.78 5.08 180) (length 2.54)
+          (name "D2" (effects (font (size 1.27 1.27))))
+          (number "3" (effects (font (size 1.27 1.27))))
+        )
+        (pin bidirectional line (at 17.78 -10.16 180) (length 2.54)
+          (name "D7" (effects (font (size 1.27 1.27))))
+          (number "4" (effects (font (size 1.27 1.27))))
+        )
+        (pin power_out line (at -2.54 25.4 270) (length 2.54)
+          (name "+5V" (effects (font (size 1.27 1.27))))
+          (number "5" (effects (font (size 1.27 1.27))))
+        )
+        (pin power_in line (at 0 -27.94 90) (length 2.54)
+          (name "GND" (effects (font (size 1.27 1.27))))
+          (number "6" (effects (font (size 1.27 1.27))))
+        )
+        (pin power_in line (at -5.08 25.4 270) (length 2.54)
+          (name "VIN" (effects (font (size 1.27 1.27))))
+          (number "7" (effects (font (size 1.27 1.27))))
+        )
+      )
+    )
+    (symbol "Motor:Motor_DC" (pin_names (offset 0) hide) (in_bom yes) (on_board yes)
+      (property "Reference" "M" (at 2.54 2.54 0)
+        (effects (font (size 1.27 1.27)) (justify left))
+      )
+      (property "Value" "Motor_DC" (at 2.54 -5.08 0)
+        (effects (font (size 1.27 1.27)) (justify left top))
+      )
+      (symbol "Motor_DC_0_0"
+        (polyline
+          (pts
+            (xy -1.27 -3.302)
+            (xy -1.27 0.508)
+            (xy 0 -1.397)
+            (xy 1.27 0.508)
+            (xy 1.27 -3.302)
+          )
+          (stroke (width 0) (type default))
+          (fill (type none))
+        )
+        (circle (center 0 -1.397) (radius 3.2004)
+          (stroke (width 0.254) (type default))
+          (fill (type none))
+        )
+        (pin passive line (at 0 2.54 270) (length 1.905)
+          (name "+" (effects (font (size 1.27 1.27))))
+          (number "1" (effects (font (size 1.27 1.27))))
+        )
+        (pin passive line (at 0 -5.08 90) (length 1.143)
+          (name "-" (effects (font (size 1.27 1.27))))
+          (number "2" (effects (font (size 1.27 1.27))))
+        )
+      )
+    )
+    (symbol "Sensor_Current:ACS712xLCTR-30A" (in_bom yes) (on_board yes)
+      (property "Reference" "U" (at -10.16 8.89 0)
+        (effects (font (size 1.27 1.27)) (justify right))
+      )
+      (property "Value" "ACS712xLCTR-30A" (at 1.27 8.89 0)
+        (effects (font (size 1.27 1.27)) (justify left))
+      )
+      (symbol "ACS712xLCTR-30A_0_1"
+        (rectangle (start -10.16 7.62) (end 10.16 -7.62)
+          (stroke (width 0.254) (type default))
+          (fill (type background))
+        )
+      )
+      (symbol "ACS712xLCTR-30A_1_1"
+        (pin power_in line (at 0 10.16 270) (length 2.54)
+          (name "VCC" (effects (font (size 1.27 1.27))))
+          (number "1" (effects (font (size 1.27 1.27))))
+        )
+        (pin power_in line (at 0 -10.16 90) (length 2.54)
+          (name "GND" (effects (font (size 1.27 1.27))))
+          (number "2" (effects (font (size 1.27 1.27))))
+        )
+        (pin output line (at 12.7 0 180) (length 2.54)
+          (name "VIOUT" (effects (font (size 1.27 1.27))))
+          (number "3" (effects (font (size 1.27 1.27))))
+        )
+        (pin passive line (at -12.7 2.54 0) (length 2.54)
+          (name "IP+" (effects (font (size 1.27 1.27))))
+          (number "4" (effects (font (size 1.27 1.27))))
+        )
+        (pin passive line (at -12.7 -2.54 0) (length 2.54)
+          (name "IP-" (effects (font (size 1.27 1.27))))
+          (number "5" (effects (font (size 1.27 1.27))))
+        )
+      )
+    )
+  )
+
+  (wire (pts (xy {component_positions["pwr12v"]["x"] + 3.81} {component_positions["pwr12v"]["y"]}) (xy {component_positions["r1"]["x"]} {component_positions["r1"]["y"] + 3.81}))
+    (stroke (width 0) (type default))
+    (uuid {str(uuid.uuid4())})
+  )
+  
+  (wire (pts (xy {component_positions["r1"]["x"]} {component_positions["r1"]["y"] - 3.81}) (xy {component_positions["r2"]["x"]} {component_positions["r2"]["y"] + 3.81}))
+    (stroke (width 0) (type default))
+    (uuid {str(uuid.uuid4())})
+  )
+
+  (symbol (lib_id "MCU_Module:Arduino_UNO_R3") (at {component_positions["arduino"]["x"]} {component_positions["arduino"]["y"]} 0) (unit 1)
+    (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
+    (uuid {str(uuid.uuid4())})
+    (property "Reference" "A1" (at {component_positions["arduino"]["x"]} {component_positions["arduino"]["y"] - 7.62} 0)
+      (effects (font (size 1.27 1.27)))
+    )
+    (property "Value" "Arduino_UNO_R3" (at {component_positions["arduino"]["x"]} {component_positions["arduino"]["y"] + 7.62} 0)
+      (effects (font (size 1.27 1.27)))
+    )
+    (property "Footprint" "Module:Arduino_UNO_R3" (at {component_positions["arduino"]["x"]} {component_positions["arduino"]["y"]} 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (property "Datasheet" "https://www.arduino.cc/en/Main/arduinoBoardUno" (at {component_positions["arduino"]["x"]} {component_positions["arduino"]["y"]} 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (pin "A0" (uuid {str(uuid.uuid4())}))
+    (pin "A1" (uuid {str(uuid.uuid4())}))
+    (pin "D2" (uuid {str(uuid.uuid4())}))
+    (pin "D7" (uuid {str(uuid.uuid4())}))
+    (pin "+5V" (uuid {str(uuid.uuid4())}))
+    (pin "GND" (uuid {str(uuid.uuid4())}))
+    (pin "VIN" (uuid {str(uuid.uuid4())}))
+    (instances
+      (project "viscosimeter"
+        (path "/" (reference "A1") (unit 1))
+      )
+    )
+  )
+
+  (symbol (lib_id "Sensor_Current:ACS712xLCTR-30A") (at {component_positions["acs712"]["x"]} {component_positions["acs712"]["y"]} 0) (unit 1)
+    (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
+    (uuid {str(uuid.uuid4())})
+    (property "Reference" "U1" (at {component_positions["acs712"]["x"]} {component_positions["acs712"]["y"] - 7.62} 0)
+      (effects (font (size 1.27 1.27)))
+    )
+    (property "Value" "ACS712xLCTR-30A" (at {component_positions["acs712"]["x"]} {component_positions["acs712"]["y"] + 7.62} 0)
+      (effects (font (size 1.27 1.27)))
+    )
+    (property "Footprint" "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm" (at {component_positions["acs712"]["x"]} {component_positions["acs712"]["y"]} 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (pin "VCC" (uuid {str(uuid.uuid4())}))
+    (pin "GND" (uuid {str(uuid.uuid4())}))
+    (pin "VIOUT" (uuid {str(uuid.uuid4())}))
+    (pin "IP+" (uuid {str(uuid.uuid4())}))
+    (pin "IP-" (uuid {str(uuid.uuid4())}))
+    (instances
+      (project "viscosimeter"
+        (path "/" (reference "U1") (unit 1))
+      )
+    )
+  )
+
+  (symbol (lib_id "Motor:Motor_DC") (at {component_positions["motor"]["x"]} {component_positions["motor"]["y"]} 0) (unit 1)
+    (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
+    (uuid {str(uuid.uuid4())})
+    (property "Reference" "M1" (at {component_positions["motor"]["x"]} {component_positions["motor"]["y"] - 7.62} 0)
+      (effects (font (size 1.27 1.27)))
+    )
+    (property "Value" "RS-445PA-14233R" (at {component_positions["motor"]["x"]} {component_positions["motor"]["y"] + 7.62} 0)
+      (effects (font (size 1.27 1.27)))
+    )
+    (property "Footprint" "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-1,5-2_1x02_P5.00mm_Horizontal" (at {component_positions["motor"]["x"]} {component_positions["motor"]["y"]} 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (pin "+" (uuid {str(uuid.uuid4())}))
+    (pin "-" (uuid {str(uuid.uuid4())}))
+    (instances
+      (project "viscosimeter"
+        (path "/" (reference "M1") (unit 1))
+      )
+    )
+  )
+
+  (symbol (lib_id "Connector:Screw_Terminal_01x03") (at {component_positions["prox_sensor"]["x"]} {component_positions["prox_sensor"]["y"]} 0) (unit 1)
+    (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
+    (uuid {str(uuid.uuid4())})
+    (property "Reference" "J1" (at {component_positions["prox_sensor"]["x"]} {component_positions["prox_sensor"]["y"] - 7.62} 0)
+      (effects (font (size 1.27 1.27)))
+    )
+    (property "Value" "TCD210245AA" (at {component_positions["prox_sensor"]["x"]} {component_positions["prox_sensor"]["y"] + 7.62} 0)
+      (effects (font (size 1.27 1.27)))
+    )
+    (property "Footprint" "TerminalBlock:TerminalBlock_bornier-3_P5.08mm" (at {component_positions["prox_sensor"]["x"]} {component_positions["prox_sensor"]["y"]} 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (pin "1" (uuid {str(uuid.uuid4())}))
+    (pin "2" (uuid {str(uuid.uuid4())}))
+    (pin "3" (uuid {str(uuid.uuid4())}))
+    (instances
+      (project "viscosimeter"
+        (path "/" (reference "J1") (unit 1))
+      )
+    )
+  )
+
+  (symbol (lib_id "Switch:SW_Push") (at {component_positions["switch"]["x"]} {component_positions["switch"]["y"]} 0) (unit 1)
+    (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
+    (uuid {str(uuid.uuid4())})
+    (property "Reference" "SW1" (at {component_positions["switch"]["x"]} {component_positions["switch"]["y"] - 7.62} 0)
+      (effects (font (size 1.27 1.27)))
+    )
+    (property "Value" "SW_Push" (at {component_positions["switch"]["x"]} {component_positions["switch"]["y"] + 7.62} 0)
+      (effects (font (size 1.27 1.27)))
+    )
+    (property "Footprint" "Button_Switch_THT:SW_PUSH_6mm" (at {component_positions["switch"]["x"]} {component_positions["switch"]["y"]} 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (pin "1" (uuid {str(uuid.uuid4())}))
+    (pin "2" (uuid {str(uuid.uuid4())}))
+    (instances
+      (project "viscosimeter"
+        (path "/" (reference "SW1") (unit 1))
+      )
+    )
+  )
+
+  (symbol (lib_id "Connector:Screw_Terminal_01x02") (at {component_positions["pwr12v"]["x"]} {component_positions["pwr12v"]["y"]} 0) (unit 1)
+    (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
+    (uuid {str(uuid.uuid4())})
+    (property "Reference" "J2" (at {component_positions["pwr12v"]["x"]} {component_positions["pwr12v"]["y"] - 7.62} 0)
+      (effects (font (size 1.27 1.27)))
+    )
+    (property "Value" "12V_Supply" (at {component_positions["pwr12v"]["x"]} {component_positions["pwr12v"]["y"] + 7.62} 0)
+      (effects (font (size 1.27 1.27)))
+    )
+    (property "Footprint" "TerminalBlock:TerminalBlock_bornier-2_P5.08mm" (at {component_positions["pwr12v"]["x"]} {component_positions["pwr12v"]["y"]} 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (pin "1" (uuid {str(uuid.uuid4())}))
+    (pin "2" (uuid {str(uuid.uuid4())}))
+    (instances
+      (project "viscosimeter"
+        (path "/" (reference "J2") (unit 1))
+      )
+    )
+  )
+
+  (symbol (lib_id "Device:R") (at {component_positions["r1"]["x"]} {component_positions["r1"]["y"]} 0) (unit 1)
+    (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
+    (uuid {str(uuid.uuid4())})
+    (property "Reference" "R1" (at {component_positions["r1"]["x"]} {component_positions["r1"]["y"] - 7.62} 0)
+      (effects (font (size 1.27 1.27)))
+    )
+    (property "Value" "48.7k" (at {component_positions["r1"]["x"]} {component_positions["r1"]["y"] + 7.62} 0)
+      (effects (font (size 1.27 1.27)))
+    )
+    (property "Footprint" "Resistor_SMD:R_0805_2012Metric" (at {component_positions["r1"]["x"]} {component_positions["r1"]["y"]} 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (pin "1" (uuid {str(uuid.uuid4())}))
+    (pin "2" (uuid {str(uuid.uuid4())}))
+    (instances
+      (project "viscosimeter"
+        (path "/" (reference "R1") (unit 1))
+      )
+    )
+  )
+
+  (symbol (lib_id "Device:R") (at {component_positions["r2"]["x"]} {component_positions["r2"]["y"]} 0) (unit 1)
+    (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
+    (uuid {str(uuid.uuid4())})
+    (property "Reference" "R2" (at {component_positions["r2"]["x"]} {component_positions["r2"]["y"] - 7.62} 0)
+      (effects (font (size 1.27 1.27)))
+    )
+    (property "Value" "31.4k" (at {component_positions["r2"]["x"]} {component_positions["r2"]["y"] + 7.62} 0)
+      (effects (font (size 1.27 1.27)))
+    )
+    (property "Footprint" "Resistor_SMD:R_0805_2012Metric" (at {component_positions["r2"]["x"]} {component_positions["r2"]["y"]} 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (pin "1" (uuid {str(uuid.uuid4())}))
+    (pin "2" (uuid {str(uuid.uuid4())}))
+    (instances
+      (project "viscosimeter"
+        (path "/" (reference "R2") (unit 1))
+      )
+    )
+  )
+
+  (sheet_instances
+    (path "/" (page "1"))
+  )
+)'''
+    
+    return schematic_content
+
 def create_viscosimeter_circuit():
-    """Creates the viscosimeter circuit and generates a netlist"""
+    """Creates the viscosimeter circuit and generates both netlist and schematic files"""
     
     # Define the power nets
     gnd = Net("GND")
@@ -61,16 +536,6 @@ def create_viscosimeter_circuit():
     pwr12v = Part("Connector", "Screw_Terminal_01x02", 
                  footprint="TerminalBlock:TerminalBlock_bornier-2_P5.08mm")
     
-    # Create labels for power rails
-    # vcc12_label = Part("power", "PWR_FLAG")
-    # gnd_label = Part("power", "GND")
-    # vcc5_label = Part("power", "PWR_FLAG")
-    
-    # Connect power labels
-    # vcc12_label[1] += vcc12
-    # gnd_label[1] += gnd
-    # vcc5_label[1] += vcc5
-    
     # Connect 12V supply terminals
     pwr12v[1] += vcc12
     pwr12v[2] += gnd
@@ -110,16 +575,13 @@ def create_viscosimeter_circuit():
     arduino["D7"] += switch_out       # Switch
     
     # Optional: Connect 12V to Arduino VIN (dashed line in diagram)
-    # Comment out if not needed
     arduino["VIN"] += vcc12
-    
-    # Run ERC check to verify circuit
-    # erc()
     
     # Generate netlist
     netlist_file = "viscosimeter.net"
     generate_netlist()
     print(f"Netlist generated successfully: {netlist_file}")
+    
     
     # Generate a simple schematic text description
     print("\nViscosimeter Circuit Connections:")
@@ -144,15 +606,24 @@ def create_viscosimeter_circuit():
     print(f"  Motor: RS-445PA-14233R")
     print(f"  Proximity Sensor: TCD210245AA (3-pin: VCC, GND, OUT)")
     print(f"  Voltage Divider: 48.7kΩ / 31.4kΩ (for 12V monitoring)")
+
+    # Generate KiCad schematic file with proper S-expression format
+    schematic_file = "viscosimeter.kicad_sch"
+    schematic_content = generate_kicad_schematic()
     
-    return netlist_file
+    with open(schematic_file, 'w') as f:
+        f.write(schematic_content)
+    
+    print(f"KiCad schematic file generated: {schematic_file}")
+    
+    return netlist_file, schematic_file
 
 if __name__ == "__main__":
     # Call the function to create the circuit
-    netlist_file = create_viscosimeter_circuit()
-    print(f"\nTo create a visual schematic in KiCad:")
+    netlist_file, schematic_file = create_viscosimeter_circuit()
+    print(f"\nTo open the schematic in KiCad:")
     print(f"1. Open KiCad and create a new project")
-    print(f"2. Open the Schematic Editor")
-    print(f"3. Go to File -> Import -> Netlist")
-    print(f"4. Select the generated file: {netlist_file}")
-    print(f"5. KiCad will place components that you can arrange according to the diagram")
+    print(f"2. Copy the generated file '{schematic_file}' to your project folder")
+    print(f"3. Open the schematic file directly in KiCad")
+    print(f"4. The components will be placed with basic positioning")
+    print(f"5. You can rearrange components and add wires as needed")
