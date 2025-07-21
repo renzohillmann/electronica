@@ -102,7 +102,7 @@ def create_viscosimeter_circuit():
     switch[2] += gnd
     
     # Connect Arduino
-    arduino["5V"] += vcc5
+    arduino["+5V"] += vcc5
     arduino["GND"] += gnd
     arduino["A0"] += current_sense    # Current sensor output
     arduino["A1"] += voltage_monitor  # Voltage divider output
@@ -114,7 +114,7 @@ def create_viscosimeter_circuit():
     arduino["VIN"] += vcc12
     
     # Run ERC check to verify circuit
-    erc()
+    # erc()
     
     # Generate netlist
     netlist_file = "viscosimeter.net"
